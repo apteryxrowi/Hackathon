@@ -1,0 +1,8 @@
+space-time simulator
+
+be able to add photons, celestial bodies
+if celestial body reaches some critical point: turn into star -> turn into blackhole
+light deflection
+geodesics
+time dilation
+pg 29-35, 84-90
