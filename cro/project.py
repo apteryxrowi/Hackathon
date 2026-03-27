@@ -1,15 +1,16 @@
 import pygame
 from ui_controls import *
 import math
-global mass, planet, G, dt, GRID_DENSITY, angle, magnitude, PI, C
+global mass, density, planet, G, dt, GRID_DENSITY, angle, magnitude, PI, C
 PI = 3.14159265358979
 GRID_DENSITY = 50
 MASS_DENSITY = 0.1
 dt = 1
 C = 299792458
 # supposed to be 6.6743e-11
-G = 100
+G = 6.6743e-2
 mass = 10
+density = 1
 angle = 0
 magnitude = 0
 bodies = []
@@ -68,7 +69,7 @@ class Blackhole(Body):
         # schwarzchild radius
         self.radius = 2*G*self.mass/C**2
         self.screen = screen
-    def draw():
+    def draw(self):
         pygame.draw.circle(self.screen, "black", (self.x, self.y), radius = self.radius)
     
 class Photon:
@@ -105,6 +106,9 @@ def create_star(density, location, mass, velocity, screen):
 def change_mass(value):
     global mass
     mass = value
+def change_density(value):
+    global density
+    density = value
 def change_angle(value):
     global angle
     angle = value
@@ -116,7 +120,6 @@ def change_magnitude(value):
 def begin_sim():
     global is_title_screen
     is_title_screen = False
-
 def main():
     global is_title_screen
     is_title_screen = True
@@ -127,11 +130,12 @@ def main():
     pygame.display.set_caption("Universe Simulation")
     clock = pygame.time.Clock()
     font = pygame.font.SysFont("Comic Sans MS", 15)
-    m_slider = Slider(800, 200, 100, 20, 10, 10000, color = "white", text = "Mass Slider", font = font, on_change = change_mass, continuous=True)
-    angle_slider = Slider(800, 240, 100, 20, 0, 360, color = "white", text ="Angle", font = font, on_change = change_angle, continuous=True)
-    magnitude_slider =  Slider(800, 280, 100, 20, 0, 20, color = "white", text ="Magnitude", font = font, on_change = change_magnitude, continuous=True)
+    m_slider = Slider(800, 200, 100, 20, 10, 1000000, color = "white", text = "Mass Slider", font = font, on_change = change_mass, continuous=True)
+    density_slider = Slider(800, 240, 100, 20, 1, 1000, color = "white", text = "Density Slider", font = font, on_change = change_density, continuous=True)
+    angle_slider = Slider(800, 280, 100, 20, 0, 360, color = "white", text ="Angle", font = font, on_change = change_angle, continuous=True)
+    magnitude_slider =  Slider(800, 320, 100, 20, 0, 20, color = "white", text ="Magnitude", font = font, on_change = change_magnitude, continuous=True)
     
-    widgets = [m_slider, angle_slider, magnitude_slider]
+    widgets = [m_slider, density_slider, angle_slider, magnitude_slider]
     running = True
     dt = clock.tick(60)/1000
     while running:
@@ -147,7 +151,7 @@ def main():
                 w.handle_event(event)
             if event.type == pygame.MOUSEBUTTONUP and event.pos[0] < 600:
                 x, y = event.pos
-                create_star(1, [x, y], mass, [magnitude*math.cos(angle*0.0174533), magnitude*math.sin(angle*0.0174533)], screen)
+                create_star(density, [x, y], mass, [magnitude*math.cos(angle*0.0174533), magnitude*math.sin(angle*0.0174533)], screen)
         # Draw widgets after background
         if not is_title_screen:
             for w in widgets:
@@ -162,7 +166,7 @@ def main():
                     x = (i*GRID_DENSITY)+(GRID_DENSITY//2)
                     y = (j*GRID_DENSITY)+(GRID_DENSITY//2)
                     grav = gravity([x,y], bodies, type = "gridline")
-                    scale = 0.1
+                    scale = 1
                     dx = grav[0] * scale
                     dy = grav[1] * scale
                     x += min(dx, GRID_DENSITY) if dx >= 0 else max(dx, -GRID_DENSITY)
